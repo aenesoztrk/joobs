@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joobs - Uzman Profili</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #10b981;
+            --dark-color: #1f2937;
+            --light-bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-muted: #6b7280;
+            --border-color: #e2e8f0;
+        }
+
+        body.dark-mode {
+            --light-bg: #111827;
+            --card-bg: #1f2937;
+            --dark-color: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: background-color 0.3s, border-color 0.3s; }
+        body { background-color: var(--light-bg); color: var(--dark-color); }
+        header { background-color: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+        .logo span { color: var(--secondary-color); }
+
+        .profile-hero { background: var(--card-bg); border-bottom: 1px solid var(--border-color); padding-bottom: 30px; }
+        .cover-photo { height: 180px; }
+        .profile-meta-container { max-width: 1200px; margin: -50px auto 0 auto; padding: 0 20px; display: flex; align-items: flex-end; gap: 25px; }
+        .big-avatar { width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--card-bg); font-size: 48px; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .meta-details { margin-bottom: 10px; }
+        .meta-details h1 { font-size: 32px; font-weight: 800; }
+
+        .profile-body { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        @media (max-width: 768px) { .profile-body { grid-template-columns: 1fr; } }
+
+        .profile-card-box { background: var(--card-bg); border-radius: 16px; padding: 25px; border: 1px solid var(--border-color); margin-bottom: 25px; }
+        .box-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; border-bottom: 2px solid var(--light-bg); padding-bottom: 8px; }
+
+        .skills-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }
+        .skill-badge { background: #e0e7ff; color: #4f46e5; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+        body.dark-mode .skill-badge { background: #312e81; color: #c7d2fe; }
+
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .portfolio-item { background: var(--light-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; font-weight: 600; text-align: center; }
+
+        /* Yorum Yapma Formu Stilleri */
+        .comment-form { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; background: var(--light-bg); padding: 20px; border-radius: 12px; }
+        .comment-form input, .comment-form select, .comment-form textarea { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--dark-color); outline: none; }
+        .comment-form button { background: var(--secondary-color); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        
+        .review-item { border-bottom: 1px solid var(--border-color); padding: 15px 0; }
+        .review-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .stars { color: #f59e0b; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container"><a href="index.html" class="logo">Joobs<span>.</span></a></div>
+    </header>
+
+    <section class="profile-hero">
+        <div class="cover-photo" id="profileCover"></div>
+        <div class="profile-meta-container">
+            <div class="big-avatar" id="profileAvatar">?</div>
+            <div class="meta-details">
+                <h1 id="profileName">-</h1>
+                <p style="color:var(--text-muted)" id="profileTitle">-</p>
+                <div style="color: #f59e0b; font-weight: bold; margin-top: 5px;" id="profileRating">★ 0.0</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="profile-body">
+        <aside>
+            <div class="profile-card-box">
+                <h2 class="box-title">Hizmet Detayları</h2>
+                <p style="margin-bottom:8px">📍 <strong>Bölge:</strong> <span id="infoLocation">-</span></p>
+                <p style="margin-bottom:8px">🕒 <strong>Saatler:</strong> <span id="infoHours">-</span></p>
+                <p>💰 <strong>Başlangıç:</strong> <span id="infoPrice">-</span></p>
+            </div>
+            <div class="profile-card-box">
+                <h2 class="box-title">Beceriler</h2>
+                <ul class="skills-list" id="skillsList"></ul>
+            </div>
+        </aside>
+
+        <section>
+            <div class="profile-card-box">
+                <h2 class="box-title">Yaptığı İşler / Portfolyo</h2>
+                <div class="portfolio-grid" id="portfolioGrid"></div>
+            </div>
+
+            <div class="profile-card-box">
+                <h2 class="box-title">Müşteri Yorumları</h2>
+                <div id="reviewsContainer"></div>
+
+                <form class="comment-form" onsubmit="submitReview(event)">
+                    <h3 style="font-size:16px">Değerlendirme Bırak</h3>
+                    <input type="text" id="revUser" placeholder="Adınız Soyadınız" required>
+                    <select id="revRate">
+                        <option value="★ 5.0">5 Yıldız (Mükemmel)</option>
+                        <option value="★ 4.0">4 Yıldız (Çok İyi)</option>
+                        <option value="★ 3.0">3 Yıldız (Orta)</option>
+                    </select>
+                    <textarea id="revText" rows="3" placeholder="Hizmet kalitesi hakkında yorumunuz..." required></textarea>
+                    <button type="submit">Yorumu Yayınla</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Statik Detay Havuzu
+        const staticDetails = {
+            1: { skills: ["HTML5", "CSS3", "JavaScript", "React", "Node.js"], portfolio: ["E-Ticaret Paneli", "Kurumsal Blog", "CMS Geliştirme"], reviews: [{user:"Hasan K.", rate:"★ 5.0", text:"Harika iş çıkardı."}] },
+            2: { skills: ["UI/UX", "Figma", "Adobe Illustrator", "Logo Tasarımı"], portfolio: ["Mobil App Çizimi", "Logo Paket Tasarımı"], reviews: [{user:"Zeynep U.", rate:"★ 4.8", text:"Çok yaratıcı tasarımcı."}] },
+            3: { skills: ["Ofis Temizliği", "Daire Dezenfeksiyonu"], portfolio: ["Komple Ev Temizliği"], reviews: [] },
+            4: { skills: ["Kombi Tamiri", "Klima Bakım"], portfolio: ["Kart Değişimi"], reviews: [] },
+            5: { skills: ["Flutter", "Firebase"], portfolio: ["Kurye App Uygulaması"], reviews: [] },
+            6: { skills: ["Canva", "Video Montaj"], portfolio: ["Sosyal Medya Grid Çekimi"], reviews: [] }
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const providerId = parseInt(urlParams.get('id'));
+
+        function getProviderData() {
+            // Ana sayfadaki statik listeyi taklit etmek için eşleştirme yapıyoruz
+            const baseMock = [
+                { id: 1, name: "Ahmet Yılmaz", title: "Full-Stack Web Geliştirici", rating: "4.9 (42)", price: "1.500 TL", color: "#4f46e5", initial: "A", location: "İstanbul", hours: "09:00 - 19:00" },
+                { id: 2, name: "Elif Kaya", title: "UI/UX & Logo Tasarımcısı", rating: "4.8 (56)", price: "800 TL", color: "#ec4899", initial: "E", location: "İzmir", hours: "10:00 - 18:00" },
+                { id: 3, name: "Mehmet Demir", title: "Profesyonel Ev ve Ofis Temizliği", rating: "5.0 (120)", price: "600 TL", color: "#10b981", initial: "M", location: "Ankara", hours: "08:00 - 20:00" },
+                { id: 4, name: "Can Onur", title: "Kombi ve Beyaz Eşya Tamir Ustası", rating: "4.7 (38)", price: "450 TL", color: "#f59e0b", initial: "C", location: "Bursa", hours: "07:30 - 21:00" },
+                { id: 5, name: "Selin Öztürk", title: "Mobil Uygulama Geliştirici", rating: "4.9 (19)", price: "2.200 TL", color: "#06b6d4", initial: "S", location: "Antalya", hours: "09:00 - 18:00" },
+                { id: 6, name: "Murat Aksoy", title: "Sosyal Medya Görsel Tasarımcısı", rating: "4.6 (24)", price: "500 TL", color: "#8b5cf6", initial: "M", location: "Kocaeli", hours: "11:00 - 23:00" }
+            ];
+            const custom = JSON.parse(localStorage.getItem('joobs_custom_providers')) || [];
+            return [...baseMock, ...custom].find(p => p.id === providerId);
+        }
+
+        function renderProfile() {
+            const p = getProviderData();
+            if(!p) return;
+
+            document.getElementById('profileCover').style.background = `linear-gradient(45deg, ${p.color}, #1e293b)`;
+            document.getElementById('profileAvatar').style.backgroundColor = p.color;
+            document.getElementById('profileAvatar').innerText = p.initial;
+            document.getElementById('profileName').innerText = p.name;
+            document.getElementById('profileTitle').innerText = p.title;
+            document.getElementById('profileRating').innerText = "★ " + p.rating;
+            document.getElementById('infoLocation').innerText = p.location;
+            document.getElementById('infoHours').innerText = p.hours;
+            document.getElementById('infoPrice').innerText = p.price;
+
+            // Detaylar (Beceriler & İşler)
+            const details = staticDetails[p.id] || { skills: p.skills || [], portfolio: p.portfolio || [], reviews: [] };
+            
+            document.getElementById('skillsList').innerHTML = details.skills.map(s => `<li class="skill-badge">${s}</li>`).join('');
+            document.getElementById('portfolioGrid').innerHTML = details.portfolio.map(w => `<div class="portfolio-item">💼 ${w}</div>`).join('');
+
+            // Yorumları Listeleme (Statik + LocalStorage)
+            const localReviews = JSON.parse(localStorage.getItem(`reviews_${p.id}`)) || [];
+            const allReviews = [...(details.reviews || []), ...localReviews];
+            
+            document.getElementById('reviewsContainer').innerHTML = allReviews.map(r => `
+                <div class="review-item">
+                    <div class="review-header"><span>👤 ${r.user}</span><span class="stars">${r.rate}</span></div>
+                    <p style="margin-top:5px; color:var(--text-muted)">"${r.text}"</p>
+                </div>
+            `).join('');
+        }
+
+        // Yeni Yorum Gönderme Fonksiyonu
+        function submitReview(e) {
+            e.preventDefault();
+            const user = document.getElementById('revUser').value;
+            const rate = document.getElementById('revRate').value;
+            const text = document.getElementById('revText').value;
+
+            const localReviews = JSON.parse(localStorage.getItem(`reviews_${providerId}`)) || [];
+            localReviews.push({ user, rate, text });
+            localStorage.setItem(`reviews_${providerId}`, JSON.stringify(localReviews));
+
+            document.getElementById('revUser').value = "";
+            document.getElementById('revText').value = "";
+            renderProfile();
+        }
+
+        if(localStorage.getItem('joobs_theme') === 'dark') document.body.classList.add('dark-mode');
+        renderProfile();
+    </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joobs - Hizmet Veren Ol</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #10b981;
+            --dark-color: #1f2937;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-muted: #6b7280;
+            --border-color: #cbd5e1;
+        }
+
+        body.dark-mode {
+            --light-bg: #111827;
+            --card-bg: #1f2937;
+            --dark-color: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: background-color 0.3s; }
+        body { background-color: var(--light-bg); color: var(--dark-color); line-height: 1.6; }
+
+        header { background-color: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+        .logo span { color: var(--secondary-color); }
+        .back-link { text-decoration: none; color: var(--text-muted); font-weight: 500; }
+
+        .register-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; }
+        @media (max-width: 900px) { .register-container { grid-template-columns: 1fr; } }
+
+        .form-box { background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 1px solid var(--border-color); background: var(--light-bg); color: var(--dark-color); border-radius: 10px; outline: none; font-size: 15px; }
+
+        .btn-submit { background-color: var(--secondary-color); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-submit:hover { background-color: #059669; }
+
+        /* Canlı Önizleme */
+        .preview-sticky { position: sticky; top: 100px; height: fit-content; }
+        .provider-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+        .provider-banner { height: 110px; background: linear-gradient(45deg, #4f46e5, #374151); }
+        .provider-info { padding: 20px; position: relative; display: flex; flex-direction: column; }
+        .provider-avatar { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--card-bg); position: absolute; top: -35px; left: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 24px; background-color: #4f46e5; }
+        .provider-details { margin-top: 35px; }
+        .provider-name { font-size: 18px; font-weight: 700; }
+        .provider-title { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; }
+        .provider-footer { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .price { font-weight: 700; }
+
+        .success-box { display: none; text-align: center; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">Joobs<span>.</span></a>
+            <a href="index.html" class="back-link">← Ana Sayfaya Dön</a>
+        </div>
+    </header>
+
+    <main class="register-container">
+        <section class="form-box" id="formSection">
+            <h1 style="margin-bottom:20px">Joobs İlanı Oluştur</h1>
+            <form id="providerForm" onsubmit="submitForm(event)">
+                <div class="form-grid">
+                    <div class="form-group"><label>Adınız Soyadınız</label><input type="text" id="fullName" required oninput="updatePreview()"></div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="category" required>
+                            <option value="yazilim">Yazılım & BT</option>
+                            <option value="tasarim">Tasarım & Grafik</option>
+                            <option value="temizlik">Ev Temizliği</option>
+                            <option value="tamirat">Tamirat & Tadilat</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>Profesyonel Unvan</label><input type="text" id="jobTitle" required oninput="updatePreview()"></div>
+                    <div class="form-group"><label>Başlangıç Fiyatı (TL)</label><input type="number" id="price" required oninput="updatePreview()"></div>
+                    <div class="form-group"><label>Şehir</label><input type="text" id="location" required></div>
+                    <div class="form-group"><label>Çalışma Saatleri</label><input type="text" id="hours" value="09:00 - 18:00" required></div>
+                    <div class="form-group"><label>Telefon</label><input type="text" id="phone" required></div>
+                    <div class="form-group"><label>E-posta</label><input type="email" id="email" required></div>
+                    <div class="form-group full-width"><label>Tema Rengi</label>
+                        <select id="themeColor" onchange="updatePreview()">
+                            <option value="#4f46e5">İndigo Mavi</option>
+                            <option value="#10b981">Zümrüt Yeşil</option>
+                            <option value="#ec4899">Pembe</option>
+                            <option value="#f59e0b">Kehribar</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>Beceriler (Virgülle ayırın)</label><input type="text" id="skills" placeholder="HTML, CSS, Tasarım" required></div>
+                    <div class="form-group full-width"><label>Yaptığınız Örnek İşler (Virgülle ayırın)</label><input type="text" id="portfolio" placeholder="X Şirket Logosu, E-Ticaret Sitesi" required></div>
+                </div>
+                <button type="submit" class="btn-submit">İlanı Canlıya Al</button>
+            </form>
+        </section>
+
+        <section class="form-box success-box" id="successSection">
+            <h2 style="color:var(--secondary-color)">✓ İlanınız Başarıyla Yayınlandı!</h2>
+            <p style="margin: 15px 0">Oluşturduğunuz ilan tarayıcı hafızasına kaydedildi. Artık ana sayfaya dönüp yeni ilanınızı görebilir, filtreleyebilir veya üzerine basıp profiline gidebilirsiniz.</p>
+            <a href="index.html" class="btn-submit" style="display:block; text-decoration:none; background:var(--primary-color)">Ana Sayfaya Git ve İlanı Gör</a>
+        </section>
+
+        <aside class="preview-sticky">
+            <div class="provider-card">
+                <div class="provider-banner" id="prevBanner"></div>
+                <div class="provider-info">
+                    <div class="provider-avatar" id="prevAvatar">J</div>
+                    <div class="provider-details">
+                        <h3 class="provider-name" id="prevName">Adınız Soyadınız</h3>
+                        <p class="provider-title" id="prevTitle">Profesyonel Unvanınız</p>
+                        <div class="provider-rating">★ 5.0 (Yeni Üye)</div>
+                    </div>
+                    <div class="provider-footer">
+                        <div class="price"><span id="prevPrice">0 TL</span> <span>/başlayan</span></div>
+                        <button class="btn-submit" style="padding:5px; font-size:12px; margin:0; width:auto" type="button">Önizleme</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        function updatePreview() {
+            const name = document.getElementById('fullName').value || "Adınız Soyadınız";
+            const title = document.getElementById('jobTitle').value || "Profesyonel Unvanınız";
+            const price = document.getElementById('price').value || "0";
+            const color = document.getElementById('themeColor').value;
+
+            document.getElementById('prevName').innerText = name;
+            document.getElementById('prevAvatar').innerText = name.charAt(0).toUpperCase();
+            document.getElementById('prevTitle').innerText = title;
+            document.getElementById('prevPrice').innerText = parseInt(price).toLocaleString() + " TL";
+            document.getElementById('prevBanner').style.background = `linear-gradient(45deg, ${color}, #1e293b)`;
+            document.getElementById('prevAvatar').style.backgroundColor = color;
+        }
+
+        function submitForm(e) {
+            e.preventDefault();
+            
+            // Verileri paketleme
+            const newProvider = {
+                id: Date.now(), // Benzersiz ID üretimi
+                name: document.getElementById('fullName').value,
+                title: document.getElementById('jobTitle').value,
+                category: document.getElementById('category').value,
+                ratingNum: 5.0,
+                rating: "5.0 (Yeni Üye)",
+                priceNum: parseInt(document.getElementById('price').value),
+                price: parseInt(document.getElementById('price').value).toLocaleString() + " TL",
+                color: document.getElementById('themeColor').value,
+                initial: document.getElementById('fullName').value.charAt(0).toUpperCase(),
+                location: document.getElementById('location').value,
+                hours: document.getElementById('hours').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                skills: document.getElementById('skills').value.split(',').map(s => s.trim()),
+                portfolio: document.getElementById('portfolio').value.split(',').map(p => p.trim())
+            };
+
+            // LocalStorage'a ekleme
+            const customProviders = JSON.parse(localStorage.getItem('joobs_custom_providers')) || [];
+            customProviders.push(newProvider);
+            localStorage.setItem('joobs_custom_providers', JSON.stringify(customProviders));
+
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('successSection').style.display = 'block';
+        }
+
+        if(localStorage.getItem('joobs_theme') === 'dark') document.body.classList.add('dark-mode');
+    </script>
+</body>
+</html>

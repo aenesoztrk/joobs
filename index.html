@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joobs - Hizmet ve İş Bulma Platformu</title>
+    <style>
+        /* --- Değişkenler ve Karanlık Mod Desteği --- */
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #10b981;
+            --dark-color: #1f2937;
+            --light-bg: #f9fafb;
+            --card-bg: #ffffff;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body.dark-mode {
+            --light-bg: #111827;
+            --card-bg: #1f2937;
+            --dark-color: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: background-color 0.3s, border-color 0.3s; }
+        body { background-color: var(--light-bg); color: var(--dark-color); line-height: 1.6; }
+
+        /* --- Header --- */
+        header { background-color: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .logo { font-size: 28px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+        .logo span { color: var(--secondary-color); }
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        .nav-links a { text-decoration: none; color: var(--dark-color); font-weight: 500; }
+        .btn-provider { background-color: var(--primary-color); color: white !important; padding: 8px 18px; border-radius: 20px; }
+        
+        /* Karanlık Mod Butonu */
+        .theme-toggle { background: none; border: 1px solid var(--border-color); font-size: 18px; cursor: pointer; padding: 6px 12px; border-radius: 50%; color: var(--dark-color); }
+
+        /* --- Hero --- */
+        .hero { background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%); padding: 60px 20px; text-align: center; }
+        body.dark-mode .hero { background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); }
+        .hero h1 { font-size: 42px; margin-bottom: 15px; }
+        .search-container { display: flex; background: white; padding: 6px; border-radius: 30px; max-width: 700px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .search-container input { flex: 1; border: none; padding: 12px 20px; border-radius: 30px; outline: none; font-size: 16px; background: transparent; color: #111827; }
+        body.dark-mode .search-container { background: #374151; }
+        body.dark-mode .search-container input { color: white; }
+        .search-container button { background-color: var(--secondary-color); color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; font-weight: 600; }
+
+        /* --- Kontroller (Filtreler & Sıralama) --- */
+        .main-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .controls-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .section-title { font-size: 24px; position: relative; padding-bottom: 8px; }
+        .section-title::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 3px; background-color: var(--primary-color); }
+        
+        .filter-sort-group { display: flex; gap: 15px; align-items: center; }
+        .btn-fav-filter { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--dark-color); padding: 10px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+        .btn-fav-filter.active { background-color: #ef4444; color: white; border-color: #ef4444; }
+        .sort-select { background: var(--card-bg); color: var(--dark-color); border: 1px solid var(--border-color); padding: 10px 15px; border-radius: 10px; outline: none; font-weight: 600; cursor: pointer; }
+
+        /* Kategori Grid */
+        .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 50px; }
+        .category-card { background: var(--card-bg); padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .category-card:hover, .category-card.active { border-color: var(--primary-color); background-color: var(--light-bg); transform: translateY(-3px); }
+        .category-card .icon { font-size: 32px; margin-bottom: 10px; display: block; }
+
+        /* --- Profesyonel Kartları --- */
+        .providers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .provider-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; }
+        .provider-banner { height: 120px; }
+        
+        /* Kalp Butonu */
+        .fav-btn { position: absolute; top: 15px; right: 15px; background: rgba(25px, 25px, 25px, 0.2); border: none; color: white; font-size: 22px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .fav-btn.is-fav { color: #ef4444; }
+
+        .provider-info { padding: 20px; position: relative; flex-grow: 1; display: flex; flex-direction: column; }
+        .provider-avatar { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--card-bg); position: absolute; top: -35px; left: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 24px; }
+        .provider-details { margin-top: 40px; }
+        .provider-name { font-size: 18px; font-weight: 700; }
+        .provider-title { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; }
+        .provider-rating { color: #f59e0b; font-weight: bold; font-size: 14px; margin-bottom: 15px; }
+        .provider-footer { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .price { font-weight: 700; }
+        .price span { font-size: 12px; color: var(--text-muted); }
+        .btn-group { display: flex; gap: 8px; }
+        .btn-contact, .btn-view-profile { border: 1px solid var(--primary-color); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; text-decoration: none; }
+        .btn-contact { background: transparent; color: var(--primary-color); }
+        .btn-contact:hover { background: var(--primary-color); color: white; }
+        .btn-view-profile { background: var(--primary-color); color: white; }
+
+        /* Modallar */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: var(--text-muted); }
+        .info-list { list-style: none; margin-bottom: 20px; }
+        .info-list li { background: var(--light-bg); padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; gap: 10px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
+        .form-group input { padding: 12px; border: 1px solid var(--border-color); background: var(--light-bg); color: var(--dark-color); border-radius: 10px; outline: none; }
+        .btn-action { background: var(--secondary-color); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        footer { background: #111827; color: white; text-align: center; padding: 30px 20px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Joobs<span>.</span></a>
+            <nav class="nav-links">
+                <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+                <a href="#" onclick="openLoginModal()">Giriş Yap</a>
+                <a href="provider-register.html" class="btn-provider">Hizmet Veren Ol</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Aradığın Uzman ve Hizmet Bir Tık Uzağında</h1>
+            <p>Tasarımcılardan temizlik uzmanlarına kadar binlerce profesyonelle anında iletişime geç.</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Örn: Logo tasarımı, ev temizliği..." oninput="searchProviders()">
+                <button onclick="searchProviders()">Ara</button>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-container">
+        <div class="categories-grid">
+            <div class="category-card active" onclick="filterCategory('all', this)"><span class="icon">🌐</span><h3>Tümü</h3></div>
+            <div class="category-card" onclick="filterCategory('yazilim', this)"><span class="icon">💻</span><h3>Yazılım</h3></div>
+            <div class="category-card" onclick="filterCategory('tasarim', this)"><span class="icon">🎨</span><h3>Tasarım</h3></div>
+            <div class="category-card" onclick="filterCategory('temizlik', this)"><span class="icon">🧹</span><h3>Temizlik</h3></div>
+            <div class="category-card" onclick="filterCategory('tamirat', this)"><span class="icon">🔧</span><h3>Tamirat</h3></div>
+        </div>
+
+        <div class="controls-row">
+            <h2 class="section-title">Öne Çıkan Uzmanlar</h2>
+            <div class="filter-sort-group">
+                <button class="btn-fav-filter" id="favFilterBtn" onclick="toggleFavFilter()">❤️ Sadece Favoriler</button>
+                <select class="sort-select" id="sortSelect" onchange="handleSortAndFilter()">
+                    <option value="default">Varsayılan Sıralama</option>
+                    <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
+                    <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
+                    <option value="rate-desc">En Yüksek Puanlar</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="providers-grid" id="providersGrid"></div>
+    </main>
+
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal('contactModal')">&times;</span>
+            <h3 id="modalName">-</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" id="modalTitle">-</p>
+            <ul class="info-list">
+                <li>📍 <span id="modalLocation">-</span></li>
+                <li>📞 <a href="#" id="modalPhone" style="color:var(--primary-color)">-</a></li>
+                <li>✉️ <a href="#" id="modalEmail" style="color:var(--primary-color)">-</a></li>
+                <li>🕒 <span id="modalHours">-</span></li>
+            </ul>
+            <button class="btn-action" onclick="alert('Mesajınız başarıyla iletildi!')">Mesaj Gönder</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
+            <h3 style="text-align: center; margin-bottom: 20px;">Giriş Yap</h3>
+            <form onsubmit="event.preventDefault(); alert('Başarıyla Giriş Yapıldı!'); closeModal('loginModal');">
+                <div class="form-group"><label>E-posta</label><input type="email" required></div>
+                <div class="form-group"><label>Şifre</label><input type="password" required></div>
+                <button type="submit" class="btn-action" style="background:var(--primary-color)">Giriş Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <footer><p>&copy; 2026 Joobs Marketplace. Tüm hakları saklıdır.</p></footer>
+
+    <script>
+        // Sabit Mock Veri Seti
+        const baseProviders = [
+            { id: 1, name: "Ahmet Yılmaz", title: "Full-Stack Web Geliştirici", category: "yazilim", ratingNum: 4.9, rating: "4.9 (42)", priceNum: 1500, price: "1.500 TL", color: "#4f46e5", initial: "A", phone: "+90 532 111 2233", email: "ahmet.y@joobs.com", location: "İstanbul", hours: "09:00 - 19:00" },
+            { id: 2, name: "Elif Kaya", title: "UI/UX & Logo Tasarımcısı", category: "tasarim", ratingNum: 4.8, rating: "4.8 (56)", priceNum: 800, price: "800 TL", color: "#ec4899", initial: "E", phone: "+90 544 222 3344", email: "elif.kaya@joobs.com", location: "İzmir", hours: "10:00 - 18:00" },
+            { id: 3, name: "Mehmet Demir", title: "Profesyonel Ev ve Ofis Temizliği", category: "temizlik", ratingNum: 5.0, rating: "5.0 (120)", priceNum: 600, price: "600 TL", color: "#10b981", initial: "M", phone: "+90 505 333 4455", email: "mehmet.temizlik@joobs.com", location: "Ankara", hours: "08:00 - 20:00" },
+            { id: 4, name: "Can Onur", title: "Kombi ve Beyaz Eşya Tamir Ustası", category: "tamirat", ratingNum: 4.7, rating: "4.7 (38)", priceNum: 450, price: "450 TL", color: "#f59e0b", initial: "C", phone: "+90 555 444 5566", email: "can.usta@joobs.com", location: "Bursa", hours: "07:30 - 21:00" },
+            { id: 5, name: "Selin Öztürk", title: "Mobil Uygulama Geliştirici", category: "yazilim", ratingNum: 4.9, rating: "4.9 (19)", priceNum: 2200, price: "2.200 TL", color: "#06b6d4", initial: "S", phone: "+90 533 555 6677", email: "selin.dev@joobs.com", location: "Antalya", hours: "09:00 - 18:00" },
+            { id: 6, name: "Murat Aksoy", title: "Sosyal Medya Görsel Tasarımcısı", category: "tasarim", ratingNum: 4.6, rating: "4.6 (24)", priceNum: 500, price: "500 TL", color: "#8b5cf6", initial: "M", phone: "+90 541 666 7788", email: "murat.aksoy@joobs.com", location: "Kocaeli", hours: "11:00 - 23:00" }
+        ];
+
+        let currentCategory = 'all';
+        let showOnlyFavs = false;
+        const providersGrid = document.getElementById('providersGrid');
+
+        // Tüm Verileri (Mock + LocalStorage) Birleştirme
+        function getAllProviders() {
+            const customProviders = JSON.parse(localStorage.getItem('joobs_custom_providers')) || [];
+            return [...baseProviders, ...customProviders];
+        }
+
+        // Kartları Ekrana Basma
+        function displayProviders(data) {
+            providersGrid.innerHTML = "";
+            const favorites = JSON.parse(localStorage.getItem('joobs_favorites')) || [];
+
+            if(data.length === 0) {
+                providersGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted)">Aradığınız kriterde ilan bulunamadı.</div>`;
+                return;
+            }
+
+            data.forEach(p => {
+                const isFav = favorites.includes(p.id) ? 'is-fav' : '';
+                const card = `
+                    <div class="provider-card">
+                        <div class="provider-banner" style="background: linear-gradient(45deg, ${p.color}, #1e293b)"></div>
+                        <button class="fav-btn ${isFav}" onclick="toggleFavorite(${p.id})">♥</button>
+                        <div class="provider-info">
+                            <div class="provider-avatar" style="background-color: ${p.color}">${p.initial}</div>
+                            <div class="provider-details">
+                                <h3 class="provider-name">${p.name}</h3>
+                                <p class="provider-title">${p.title}</p>
+                                <div class="provider-rating">★ ${p.rating}</div>
+                            </div>
+                            <div class="provider-footer">
+                                <div class="price">${p.price} <span>/başlayan</span></div>
+                                <div class="btn-group">
+                                    <button class="btn-contact" onclick="openContactModal(${p.id})">İletişim</button>
+                                    <a href="profile.html?id=${p.id}" target="_blank" class="btn-view-profile">Profili Gör</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                providersGrid.innerHTML += card;
+            });
+        }
+
+        // Sıralama, Arama ve Kategori Filtreleme Algoritması
+        function handleSortAndFilter() {
+            let list = getAllProviders();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const sortType = document.getElementById('sortSelect').value;
+            const favorites = JSON.parse(localStorage.getItem('joobs_favorites')) || [];
+
+            // 1. Kategori Filtresi
+            if (currentCategory !== 'all') list = list.filter(p => p.category === currentCategory);
+            // 2. Arama Filtresi
+            if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery) || p.title.toLowerCase().includes(searchQuery));
+            // 3. Favori Filtresi
+            if (showOnlyFavs) list = list.filter(p => favorites.includes(p.id));
+
+            // 4. Sıralama İşlemi
+            if (sortType === 'price-asc') list.sort((a, b) => a.priceNum - b.priceNum);
+            else if (sortType === 'price-desc') list.sort((a, b) => b.priceNum - a.priceNum);
+            else if (sortType === 'rate-desc') list.sort((a, b) => b.ratingNum - a.ratingNum);
+
+            displayProviders(list);
+        }
+
+        function filterCategory(cat, element) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            handleSortAndFilter();
+        }
+
+        function searchProviders() { handleSortAndFilter(); }
+        
+        function toggleFavFilter() {
+            showOnlyFavs = !showOnlyFavs;
+            document.getElementById('favFilterBtn').classList.toggle('active', showOnlyFavs);
+            handleSortAndFilter();
+        }
+
+        // Favoriye Ekleme / Çıkarma
+        function toggleFavorite(id) {
+            let favorites = JSON.parse(localStorage.getItem('joobs_favorites')) || [];
+            if (favorites.includes(id)) favorites = favorites.filter(favId => favId !== id);
+            else favorites.push(id);
+            localStorage.setItem('joobs_favorites', JSON.stringify(favorites));
+            handleSortAndFilter();
+        }
+
+        // Karanlık Mod Yönetimi
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('joobs_theme', isDark ? 'dark' : 'light');
+        }
+
+        function openContactModal(id) {
+            const p = getAllProviders().find(p => p.id === id);
+            if(p) {
+                document.getElementById('modalName').innerText = p.name;
+                document.getElementById('modalTitle').innerText = p.title;
+                document.getElementById('modalLocation').innerText = p.location + ", Türkiye";
+                document.getElementById('modalPhone').innerText = p.phone;
+                document.getElementById('modalPhone').href = "tel:" + p.phone;
+                document.getElementById('modalEmail').innerText = p.email;
+                document.getElementById('modalEmail').href = "mailto:" + p.email;
+                document.getElementById('modalHours').innerText = "Çalışma Saatleri: " + p.hours;
+                document.getElementById('contactModal').style.display = 'flex';
+            }
+        }
+
+        function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        window.onclick = function(e) { if(e.target.classList.contains('modal-overlay')) e.target.style.display="none"; }
+
+        // Başlangıç Ayarları
+        if(localStorage.getItem('joobs_theme') === 'dark') document.body.classList.add('dark-mode');
+        handleSortAndFilter();
+    </script>
+</body>
+</html>
