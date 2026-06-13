@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joobs — Hizmet Veren Ol</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-gray-50 dark:bg-[#08080e] text-gray-900 dark:text-gray-100 min-h-screen">
+
+<!-- NAVBAR -->
+<header class="glass sticky top-0 z-50 border-b border-gray-200/80 dark:border-gray-800/80">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-7 h-7 bg-gradient-to-br from-violet-600 to-purple-700 rounded-lg flex items-center justify-center shadow-md shadow-violet-900/20">
+        <span class="text-white text-xs font-black">J</span>
+      </div>
+      <span class="font-bold text-sm brand-text">Joobs</span>
+    </a>
+    <div class="flex-1"></div>
+    <button onclick="Theme.toggle()" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">
+      <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 2v2m0 16v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m16 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg id="icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <a href="index.html" class="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-violet-500 transition-colors">← Ana Sayfa</a>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- FORM -->
+  <section class="lg:col-span-2">
+    <div id="formBox" class="bg-white dark:bg-[#111119] border border-gray-200/80 dark:border-gray-800/60 rounded-2xl p-7">
+      <h1 class="text-xl font-black mb-1">Joobs İlanı Oluştur</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Bilgilerini gir, ilanın anında MongoDB'ye kaydedilsin.</p>
+
+      <form id="providerForm" onsubmit="App.submit(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label class="lbl">Ad Soyad</label><input id="f-name" type="text" required oninput="App.preview()" class="inp"></div>
+        <div><label class="lbl">Kategori</label>
+          <select id="f-category" class="inp" onchange="App.preview()">
+            <option value="yazilim">💻 Yazılım & BT</option>
+            <option value="tasarim">🎨 Tasarım & Grafik</option>
+            <option value="temizlik">🧹 Ev Temizliği</option>
+            <option value="tamirat">🔧 Tamirat & Tadilat</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2"><label class="lbl">Profesyonel Unvan</label><input id="f-title" type="text" required oninput="App.preview()" class="inp" placeholder="Örn: Full-Stack Web Geliştirici"></div>
+        <div><label class="lbl">Başlangıç Fiyatı (TL)</label><input id="f-price" type="number" min="0" required oninput="App.preview()" class="inp"></div>
+        <div><label class="lbl">Şehir</label><input id="f-location" type="text" required class="inp"></div>
+        <div><label class="lbl">Çalışma Saatleri</label><input id="f-hours" type="text" value="09:00 - 18:00" required class="inp"></div>
+        <div><label class="lbl">Telefon</label><input id="f-phone" type="text" required class="inp" placeholder="+90 5xx xxx xx xx"></div>
+        <div><label class="lbl">E-posta</label><input id="f-email" type="email" required class="inp"></div>
+        <div><label class="lbl">Tema Rengi</label>
+          <select id="f-color" class="inp" onchange="App.preview()">
+            <option value="#7c3aed">Mor (Joobs)</option>
+            <option value="#4f46e5">İndigo Mavi</option>
+            <option value="#10b981">Zümrüt Yeşil</option>
+            <option value="#ec4899">Pembe</option>
+            <option value="#f59e0b">Kehribar</option>
+            <option value="#06b6d4">Camgöbeği</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2"><label class="lbl">Beceriler (virgülle ayırın)</label><input id="f-skills" type="text" class="inp" placeholder="HTML, CSS, React"></div>
+        <div class="sm:col-span-2"><label class="lbl">Örnek İşler (virgülle ayırın)</label><input id="f-portfolio" type="text" class="inp" placeholder="X Şirket Logosu, E-Ticaret Sitesi"></div>
+
+        <button type="submit" class="sm:col-span-2 mt-2 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-opacity">İlanı Canlıya Al 🚀</button>
+      </form>
+    </div>
+
+    <!-- BAŞARI -->
+    <div id="successBox" style="display:none" class="bg-white dark:bg-[#111119] border border-gray-200/80 dark:border-gray-800/60 rounded-2xl p-10 text-center">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-3xl mb-4">✓</div>
+      <h2 class="text-xl font-black text-emerald-600 dark:text-emerald-400 mb-2">İlanınız Yayınlandı!</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">İlanınız MongoDB veritabanına kaydedildi. Artık ana sayfada görünüyor, filtrelenebiliyor ve profili açılabiliyor.</p>
+      <div class="flex gap-3 justify-center">
+        <a href="index.html" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors">Ana Sayfada Gör</a>
+        <a id="goProfile" href="#" class="px-5 py-2.5 border border-gray-200 dark:border-gray-800 text-sm font-semibold rounded-xl hover:border-violet-300 transition-colors">Profili Aç</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CANLI ÖNİZLEME -->
+  <aside class="lg:sticky lg:top-20 h-fit">
+    <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500 pulse-dot"></span> CANLI ÖNİZLEME</p>
+    <div class="j-card bg-white dark:bg-[#111119] border border-gray-200/80 dark:border-gray-800/60 rounded-2xl overflow-hidden">
+      <div id="pv-banner" class="h-24" style="background: linear-gradient(135deg, #7c3aed, #1e1b2e)"></div>
+      <div class="px-5 pb-5 relative">
+        <div id="pv-avatar" class="w-16 h-16 rounded-full border-4 border-white dark:border-[#111119] absolute -top-8 left-5 flex items-center justify-center text-white text-2xl font-bold" style="background:#7c3aed">J</div>
+        <div class="mt-10">
+          <h3 id="pv-name" class="text-base font-bold">Adınız Soyadınız</h3>
+          <p id="pv-title" class="text-xs text-gray-500 dark:text-gray-400 mb-2">Profesyonel Unvanınız</p>
+          <div class="text-amber-500 text-sm font-bold mb-3">★ 5.0 <span class="text-xs text-gray-400 font-normal">(Yeni Üye)</span></div>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800/60">
+          <div class="text-sm font-bold"><span id="pv-price">0 TL</span> <span class="text-[11px] font-normal text-gray-400">/başlayan</span></div>
+          <span class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-violet-600 text-white">Profil</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<style>
+  .lbl { display:block; font-size:12px; font-weight:600; color:#6b7280; margin-bottom:5px; }
+  html.dark .lbl { color:#9ca3af; }
+  .inp { width:100%; padding:10px 12px; font-size:14px; border-radius:12px; outline:none;
+         background:#f9fafb; border:1px solid #e5e7eb; color:#111827; }
+  html.dark .inp { background:#0d0d16; border-color:#1f2937; color:#f9fafb; }
+  .inp:focus { box-shadow:0 0 0 2px rgba(124,58,237,0.35); border-color:transparent; }
+</style>
+
+<script src="app.js"></script>
+<script>
+const App = {
+  init() { Theme.init(); this.preview(); },
+
+  preview() {
+    const name = document.getElementById('f-name').value || 'Adınız Soyadınız';
+    const title = document.getElementById('f-title').value || 'Profesyonel Unvanınız';
+    const price = document.getElementById('f-price').value || '0';
+    const color = document.getElementById('f-color').value;
+    document.getElementById('pv-name').textContent = name;
+    document.getElementById('pv-title').textContent = title;
+    document.getElementById('pv-avatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('pv-avatar').style.background = color;
+    document.getElementById('pv-banner').style.background = `linear-gradient(135deg, ${color}, #1e1b2e)`;
+    document.getElementById('pv-price').textContent = money(price);
+  },
+
+  async submit(e) {
+    e.preventDefault();
+    const body = {
+      name: document.getElementById('f-name').value,
+      title: document.getElementById('f-title').value,
+      category: document.getElementById('f-category').value,
+      priceNum: Number(document.getElementById('f-price').value),
+      color: document.getElementById('f-color').value,
+      location: document.getElementById('f-location').value,
+      hours: document.getElementById('f-hours').value,
+      phone: document.getElementById('f-phone').value,
+      email: document.getElementById('f-email').value,
+      skills: document.getElementById('f-skills').value,
+      portfolio: document.getElementById('f-portfolio').value,
+    };
+    try {
+      const { provider } = await API.createProvider(body);
+      document.getElementById('formBox').style.display = 'none';
+      document.getElementById('successBox').style.display = 'block';
+      document.getElementById('goProfile').href = 'profile.html?id=' + provider._id;
+      toast('İlan başarıyla oluşturuldu!');
+    } catch (err) { toast(err.message, 'err'); }
+  },
+};
+App.init();
+</script>
+</body>
+</html>

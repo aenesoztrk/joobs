@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joobs — Hizmet ve İş Bulma Platformu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-gray-50 dark:bg-[#08080e] text-gray-900 dark:text-gray-100 min-h-screen">
+
+<!-- ═══════════════════════════ NAVBAR ═══════════════════════════════════ -->
+<header id="navbar" class="sticky top-0 z-50 border-b border-transparent transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
+    <a href="index.html" class="flex items-center gap-2.5 flex-shrink-0">
+      <div class="w-7 h-7 bg-gradient-to-br from-violet-600 to-purple-700 rounded-lg flex items-center justify-center shadow-md shadow-violet-900/20">
+        <span class="text-white text-xs font-black">J</span>
+      </div>
+      <span class="font-bold text-sm brand-text">Joobs</span>
+    </a>
+
+    <div class="flex-1"></div>
+
+    <!-- Tema -->
+    <button onclick="Theme.toggle()" title="Tema değiştir"
+      class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">
+      <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 2v2m0 16v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m16 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg id="icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+
+    <!-- Auth alanı -->
+    <div id="auth-area" class="flex items-center gap-2"></div>
+
+    <a href="provider-register.html"
+      class="flex items-center gap-1.5 px-3.5 py-2 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm shadow-violet-900/30">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Hizmet Veren Ol
+    </a>
+  </div>
+</header>
+
+<!-- ═══════════════════════════ HERO ═════════════════════════════════════ -->
+<section class="relative overflow-hidden border-b border-gray-200/60 dark:border-gray-800/60 -mt-14">
+  <div class="absolute inset-0 bg-gradient-to-br from-violet-100 via-purple-50 to-transparent dark:from-violet-950/40 dark:via-[#0d0d16] dark:to-[#08080e]"></div>
+  <div class="relative max-w-4xl mx-auto px-4 pt-28 pb-16 text-center">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 ring-1 ring-violet-200 dark:ring-violet-800/40 mb-5">
+      <span class="w-1.5 h-1.5 rounded-full bg-violet-500 pulse-dot"></span> Binlerce uzman, tek platform
+    </span>
+    <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-3">
+      Aradığın <span class="brand-text">uzman</span> bir tık uzağında
+    </h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-7 max-w-lg mx-auto">
+      Tasarımcılardan temizlik uzmanlarına kadar binlerce profesyonelle anında iletişime geç.
+    </p>
+    <div class="flex items-center gap-2 bg-white dark:bg-[#12121c] p-1.5 rounded-2xl max-w-xl mx-auto shadow-xl shadow-black/5 dark:shadow-black/30 border border-gray-200 dark:border-gray-800">
+      <svg class="w-5 h-5 ml-2.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input id="searchInput" type="text" oninput="onSearch()" placeholder="Örn: Logo tasarımı, ev temizliği…"
+        class="flex-1 bg-transparent border-0 outline-none text-sm py-2 placeholder-gray-400 text-gray-900 dark:text-gray-100">
+      <button onclick="App.load()" class="px-5 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors">Ara</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ STATS BAR ════════════════════════════════ -->
+<div class="bg-white/60 dark:bg-[#0d0d16]/60 border-b border-gray-200/60 dark:border-gray-800/60">
+  <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-5 overflow-x-auto text-xs text-gray-500">
+    <div class="flex items-center gap-1.5 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span> Toplam Uzman: <strong id="s-total" class="text-gray-700 dark:text-gray-300">—</strong></div>
+    <div class="flex items-center gap-1.5 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Yorum: <strong id="s-reviews" class="text-gray-700 dark:text-gray-300">—</strong></div>
+    <div class="flex items-center gap-1.5 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Ortalama Puan: <strong id="s-rating" class="text-gray-700 dark:text-gray-300">—</strong></div>
+    <div class="flex items-center gap-1.5 flex-shrink-0 pl-2 border-l border-gray-200 dark:border-gray-800">❤️ Favorilerim: <strong id="s-fav" class="text-gray-700 dark:text-gray-300">0</strong></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ KATEGORİLER ══════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-4 pt-6">
+  <div id="categories" class="flex gap-2 flex-wrap justify-center"></div>
+</div>
+
+<!-- ══════════════════════════ FILTER BAR ════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-2 flex-wrap">
+  <h2 class="text-lg font-bold flex-shrink-0">Öne Çıkan Uzmanlar</h2>
+  <div class="flex-1"></div>
+
+  <button id="favFilterBtn" onclick="App.toggleFavFilter()"
+    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#12121c] text-gray-600 dark:text-gray-300 hover:border-red-300 transition-colors">
+    <span>❤️</span> Sadece Favoriler
+  </button>
+
+  <label class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+    Sırala
+    <select id="sortSelect" onchange="App.load()"
+      class="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-500/50 cursor-pointer">
+      <option value="default">Varsayılan</option>
+      <option value="price-asc">Fiyat: Düşük → Yüksek</option>
+      <option value="price-desc">Fiyat: Yüksek → Düşük</option>
+      <option value="rate-desc">En Yüksek Puan</option>
+    </select>
+  </label>
+  <span id="result-count" class="text-xs text-gray-400 dark:text-gray-600 flex-shrink-0"></span>
+</div>
+
+<!-- ════════════════════════ MAIN GRID ══════════════════════════════════ -->
+<main class="max-w-7xl mx-auto px-4 pb-16">
+  <div id="state-loading" class="flex flex-col items-center justify-center h-64 gap-3">
+    <div class="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full spin"></div>
+    <span class="text-sm text-gray-400">Yükleniyor…</span>
+  </div>
+
+  <div id="state-empty" style="display:none" class="flex flex-col items-center justify-center h-64 text-center gap-4">
+    <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-3xl">🔍</div>
+    <div>
+      <h3 class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Aradığınız kriterde uzman bulunamadı</h3>
+      <p class="text-sm text-gray-400">Filtreleri değiştirip tekrar deneyin.</p>
+    </div>
+  </div>
+
+  <div id="grid" style="display:none" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+</main>
+
+<footer class="border-t border-gray-200/60 dark:border-gray-800/60 py-8 text-center text-xs text-gray-400 dark:text-gray-600">
+  © 2026 Joobs Marketplace — Node.js · Express · MongoDB
+</footer>
+
+<!-- ═══════════════════════════ MODALLAR ═════════════════════════════════ -->
+<!-- İletişim -->
+<div id="contactModal" class="modal-backdrop fixed inset-0 z-[1000] hidden items-center justify-center p-4">
+  <div class="modal-pop bg-white dark:bg-[#12121c] w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl p-6 relative">
+    <button onclick="App.closeModal('contactModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl">&times;</button>
+    <h3 id="cm-name" class="text-lg font-bold">-</h3>
+    <p id="cm-title" class="text-sm text-gray-500 dark:text-gray-400 mb-4">-</p>
+    <ul class="space-y-2 text-sm mb-5">
+      <li class="flex items-center gap-2.5 bg-gray-50 dark:bg-gray-900/50 px-3 py-2.5 rounded-xl">📍 <span id="cm-loc">-</span></li>
+      <li class="flex items-center gap-2.5 bg-gray-50 dark:bg-gray-900/50 px-3 py-2.5 rounded-xl">📞 <a id="cm-phone" href="#" class="text-violet-500 hover:underline">-</a></li>
+      <li class="flex items-center gap-2.5 bg-gray-50 dark:bg-gray-900/50 px-3 py-2.5 rounded-xl">✉️ <a id="cm-email" href="#" class="text-violet-500 hover:underline">-</a></li>
+      <li class="flex items-center gap-2.5 bg-gray-50 dark:bg-gray-900/50 px-3 py-2.5 rounded-xl">🕒 <span id="cm-hours">-</span></li>
+    </ul>
+    <button onclick="toast('Mesajınız başarıyla iletildi!')" class="w-full py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm font-semibold rounded-xl transition-opacity">Mesaj Gönder</button>
+  </div>
+</div>
+
+<!-- Giriş / Kayıt -->
+<div id="authModal" class="modal-backdrop fixed inset-0 z-[1000] hidden items-center justify-center p-4">
+  <div class="modal-pop bg-white dark:bg-[#12121c] w-full max-w-sm rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl p-6 relative">
+    <button onclick="App.closeModal('authModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl">&times;</button>
+    <div class="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 mb-5">
+      <button id="tab-login"  onclick="App.authTab('login')"  class="flex-1 py-1.5 text-xs font-semibold rounded-md cat-active transition-colors">Giriş Yap</button>
+      <button id="tab-register" onclick="App.authTab('register')" class="flex-1 py-1.5 text-xs font-semibold rounded-md text-gray-500 transition-colors">Kayıt Ol</button>
+    </div>
+    <form id="authForm" onsubmit="App.submitAuth(event)" class="space-y-3">
+      <div id="nameField" class="hidden">
+        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Ad Soyad</label>
+        <input id="auth-name" type="text" class="mt-1 w-full px-3 py-2.5 text-sm rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 outline-none focus:ring-2 focus:ring-violet-500/40">
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">E-posta</label>
+        <input id="auth-email" type="email" required class="mt-1 w-full px-3 py-2.5 text-sm rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 outline-none focus:ring-2 focus:ring-violet-500/40">
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Şifre</label>
+        <input id="auth-password" type="password" required minlength="6" class="mt-1 w-full px-3 py-2.5 text-sm rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 outline-none focus:ring-2 focus:ring-violet-500/40">
+      </div>
+      <button type="submit" id="authSubmit" class="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors">Giriş Yap</button>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+const App = {
+  state: { category: 'all', search: '', favOnly: false, authMode: 'login' },
+
+  async init() {
+    Theme.init();
+    await Favorites.sync();
+    this.renderAuth();
+    this.renderFavCount();
+    await Promise.all([this.loadCategories(), this.loadStats(), this.load()]);
+  },
+
+  // ── Auth alanı (navbar) ──────────────────────────────────────────────
+  renderAuth() {
+    const area = document.getElementById('auth-area');
+    if (Auth.isLoggedIn()) {
+      const u = Auth.user() || {};
+      area.innerHTML = `
+        <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400">Merhaba, <strong class="text-gray-700 dark:text-gray-200">${esc(u.name||'')}</strong></span>
+        <button onclick="Auth.logout()" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Çıkış</button>`;
+    } else {
+      area.innerHTML = `<button onclick="App.openAuth()" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Giriş Yap</button>`;
+    }
+  },
+
+  async loadCategories() {
+    const { categories } = await API.categories();
+    const wrap = document.getElementById('categories');
+    wrap.innerHTML = categories.map(c => `
+      <button onclick="App.setCategory('${c.key}', this)"
+        class="cat-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#12121c] hover:border-violet-300 dark:hover:border-violet-700/60 transition-colors ${c.key===this.state.category?'cat-active':'text-gray-600 dark:text-gray-300'}">
+        <span class="text-lg">${c.icon}</span> ${esc(c.label)}
+        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500">${c.count}</span>
+      </button>`).join('');
+  },
+
+  async loadStats() {
+    try {
+      const s = await API.stats();
+      document.getElementById('s-total').textContent = s.total;
+      document.getElementById('s-reviews').textContent = s.reviews;
+      document.getElementById('s-rating').textContent = s.avgRating ? '★ ' + s.avgRating : '—';
+    } catch (_) {}
+  },
+
+  renderFavCount() {
+    document.getElementById('s-fav').textContent = Favorites.local().length;
+  },
+
+  setCategory(key, el) {
+    this.state.category = key;
+    document.querySelectorAll('.cat-btn').forEach(b => { b.classList.remove('cat-active'); b.classList.add('text-gray-600','dark:text-gray-300'); });
+    el.classList.add('cat-active'); el.classList.remove('text-gray-600','dark:text-gray-300');
+    this.load();
+  },
+
+  toggleFavFilter() {
+    this.state.favOnly = !this.state.favOnly;
+    const btn = document.getElementById('favFilterBtn');
+    btn.classList.toggle('bg-red-500', this.state.favOnly);
+    btn.classList.toggle('text-white', this.state.favOnly);
+    btn.classList.toggle('border-red-500', this.state.favOnly);
+    this.load();
+  },
+
+  async load() {
+    const grid = document.getElementById('grid');
+    const search = document.getElementById('searchInput').value.trim();
+    const sort = document.getElementById('sortSelect').value;
+
+    let { providers } = await API.providers({ category: this.state.category, search, sort });
+
+    if (this.state.favOnly) {
+      const favs = Favorites.local();
+      providers = providers.filter(p => favs.includes(String(p._id)));
+    }
+
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('result-count').textContent = providers.length ? `${providers.length} sonuç` : '';
+
+    if (!providers.length) {
+      document.getElementById('state-empty').style.display = 'flex';
+      grid.style.display = 'none';
+      return;
+    }
+    document.getElementById('state-empty').style.display = 'none';
+    grid.style.display = 'grid';
+    grid.innerHTML = providers.map((p, i) => this.card(p, i)).join('');
+    this.renderFavCount();
+  },
+
+  card(p, idx) {
+    const fav = Favorites.has(p._id);
+    const delay = Math.min(idx * 35, 320);
+    const ratingPct = Math.round((p.ratingNum / 5) * 100);
+    return `
+    <div class="j-card fade-up bg-white dark:bg-[#111119] border border-gray-200/80 dark:border-gray-800/60 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-violet-950/20 flex flex-col"
+         style="animation-delay:${delay}ms; opacity:0">
+      <div class="h-24 relative" style="${bannerStyle(p.color)}">
+        <button onclick="App.toggleFav('${p._id}', this)" title="Favori"
+          class="fav-btn absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center text-lg backdrop-blur-sm bg-black/20 ${fav?'text-red-500':'text-white'} hover:scale-110 transition-transform">♥</button>
+      </div>
+      <div class="px-5 pb-5 flex flex-col flex-1 relative">
+        <div class="w-16 h-16 rounded-full border-4 border-white dark:border-[#111119] absolute -top-8 left-5 flex items-center justify-center text-white text-2xl font-bold" style="background:${esc(p.color)}">${esc(p.initial)}</div>
+        <div class="mt-10">
+          <h3 class="text-base font-bold leading-tight">${esc(p.name)}</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${esc(p.title)}</p>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-amber-500 text-sm font-bold">★ ${p.ratingNum.toFixed(1)}</span>
+            <span class="text-xs text-gray-400">(${p.reviewCount} yorum)</span>
+          </div>
+          <div class="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-3">
+            <div class="h-1 score-fill bg-amber-400" style="width:${ratingPct}%"></div>
+          </div>
+          ${(p.skills||[]).slice(0,3).map(s=>`<span class="skill-chip inline-block mr-1 mb-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400">${esc(s)}</span>`).join('')}
+        </div>
+        <div class="flex-1"></div>
+        <div class="flex items-center justify-between pt-4 mt-3 border-t border-gray-100 dark:border-gray-800/60">
+          <div class="text-sm font-bold">${esc(p.price)} <span class="text-[11px] font-normal text-gray-400">/başlayan</span></div>
+          <div class="flex gap-2">
+            <button onclick="App.openContact('${p._id}')" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-violet-500 text-violet-600 dark:text-violet-400 hover:bg-violet-500 hover:text-white transition-colors">İletişim</button>
+            <a href="profile.html?id=${p._id}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors">Profil</a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  async toggleFav(id, btn) {
+    const arr = await Favorites.toggle(id);
+    const isFav = arr.includes(String(id));
+    btn.classList.toggle('text-red-500', isFav);
+    btn.classList.toggle('text-white', !isFav);
+    this.renderFavCount();
+    if (this.state.favOnly) this.load();
+  },
+
+  async openContact(id) {
+    const { provider: p } = await API.provider(id);
+    document.getElementById('cm-name').textContent = p.name;
+    document.getElementById('cm-title').textContent = p.title;
+    document.getElementById('cm-loc').textContent = (p.location || '—') + ', Türkiye';
+    const ph = document.getElementById('cm-phone'); ph.textContent = p.phone || '—'; ph.href = 'tel:' + (p.phone||'');
+    const em = document.getElementById('cm-email'); em.textContent = p.email || '—'; em.href = 'mailto:' + (p.email||'');
+    document.getElementById('cm-hours').textContent = 'Çalışma: ' + (p.hours || '—');
+    this.openModal('contactModal');
+  },
+
+  // ── Auth modal ───────────────────────────────────────────────────────
+  openAuth() { this.authTab('login'); this.openModal('authModal'); },
+  authTab(mode) {
+    this.state.authMode = mode;
+    document.getElementById('tab-login').classList.toggle('cat-active', mode==='login');
+    document.getElementById('tab-login').classList.toggle('text-gray-500', mode!=='login');
+    document.getElementById('tab-register').classList.toggle('cat-active', mode==='register');
+    document.getElementById('tab-register').classList.toggle('text-gray-500', mode!=='register');
+    document.getElementById('nameField').classList.toggle('hidden', mode!=='register');
+    document.getElementById('auth-name').required = mode==='register';
+    document.getElementById('authSubmit').textContent = mode==='login' ? 'Giriş Yap' : 'Kayıt Ol';
+  },
+  async submitAuth(e) {
+    e.preventDefault();
+    const body = {
+      name: document.getElementById('auth-name').value,
+      email: document.getElementById('auth-email').value,
+      password: document.getElementById('auth-password').value,
+    };
+    try {
+      const fn = this.state.authMode === 'login' ? API.login({email:body.email,password:body.password}) : API.register(body);
+      const { token, user } = await fn;
+      Auth.set(token, user);
+      await Favorites.sync();
+      toast(this.state.authMode==='login' ? 'Giriş başarılı!' : 'Hesap oluşturuldu!');
+      this.closeModal('authModal');
+      this.renderAuth();
+      this.load();
+    } catch (err) { toast(err.message, 'err'); }
+  },
+
+  onSearchTimer: null,
+  openModal(id) { const m = document.getElementById(id); m.classList.remove('hidden'); m.classList.add('flex'); },
+  closeModal(id) { const m = document.getElementById(id); m.classList.add('hidden'); m.classList.remove('flex'); },
+};
+
+function onSearch() {
+  clearTimeout(App.onSearchTimer);
+  App.onSearchTimer = setTimeout(() => App.load(), 280);
+}
+
+// Modal dışına tıklayınca kapat
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) { m.classList.add('hidden'); m.classList.remove('flex'); } });
+});
+
+// Navbar: en üstte şeffaf, kaydırınca camlaşır
+const navbar = document.getElementById('navbar');
+function onNavScroll() {
+  const scrolled = window.scrollY > 20;
+  navbar.classList.toggle('glass', scrolled);
+  navbar.classList.toggle('border-gray-200/80', scrolled);
+  navbar.classList.toggle('dark:border-gray-800/80', scrolled);
+  navbar.classList.toggle('border-transparent', !scrolled);
+}
+window.addEventListener('scroll', onNavScroll, { passive: true });
+onNavScroll();
+
+App.init();
+</script>
+</body>
+</html>
