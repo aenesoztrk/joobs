@@ -9,17 +9,19 @@ const connectDB = require('./config/db');
 const providersRouter = require('./routes/providers');
 const reviewsRouter   = require('./routes/reviews');
 const authRouter      = require('./routes/auth');
+const messagesRouter  = require('./routes/messages');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ── API ───────────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ ok: true, ts: Date.now() }));
 app.use('/api/auth', authRouter);
+app.use('/api/messages', messagesRouter);
 app.use('/api/providers/:id/reviews', reviewsRouter);
 app.use('/api/providers', providersRouter);
 

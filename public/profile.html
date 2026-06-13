@@ -137,6 +137,29 @@
     </main>
   </div>
 
+  <!-- Yüzen Sohbet Kutusu -->
+  <button id="chat-toggle-btn" onclick="App.openChat()" class="fixed bottom-6 right-6 z-[999] hidden items-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white font-bold text-xs rounded-full shadow-lg shadow-violet-900/30 transition-all hover:scale-105">
+    💬 Sohbet Başlat
+  </button>
+  <div id="floating-chat" class="fixed bottom-6 right-6 z-[1000] hidden flex-col w-80 h-96 bg-white dark:bg-[#12121c] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform translate-y-4 opacity-0 scale-95">
+    <div id="chat-header" class="px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-2">
+        <div id="chat-avatar" class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold overflow-hidden">?</div>
+        <div>
+          <h4 id="chat-title" class="text-xs font-bold leading-tight">-</h4>
+          <span class="text-[9px] text-violet-200">Çevrimiçi (Joobs Polling)</span>
+        </div>
+      </div>
+      <button onclick="App.closeChat()" class="text-white hover:text-gray-200 text-lg font-bold">&times;</button>
+    </div>
+    <div id="chat-body" class="flex-1 p-3 overflow-y-auto space-y-2 bg-gray-50/50 dark:bg-gray-950/20 text-xs"></div>
+    <form id="chat-form" onsubmit="App.sendChatMessage(event)" class="p-2 border-t border-gray-100 dark:border-gray-800 flex gap-1.5 bg-white dark:bg-[#12121c]">
+      <input id="chat-input" type="text" placeholder="Mesajınızı yazın..." required autocomplete="off"
+        class="flex-1 px-3 py-2 text-xs rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 outline-none focus:ring-2 focus:ring-violet-500/40">
+      <button type="submit" class="px-3 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition-colors">Gönder</button>
+    </form>
+  </div>
+
   <!-- ═══════════════════════════ MODALLAR ═════════════════════════════════ -->
   <div id="editModal" class="modal-backdrop fixed inset-0 z-[1000] hidden items-center justify-center p-4">
     <div
@@ -199,8 +222,12 @@
           <input id="e-skills" type="text" class="inp" placeholder="HTML, CSS, React">
         </div>
         <div class="sm:col-span-2">
-          <label class="lbl">Örnek İşler (virgülle ayırın)</label>
-          <input id="e-portfolio" type="text" class="inp" placeholder="X Şirket Logosu, E-Ticaret Sitesi">
+          <label class="lbl">Profil Resmi (Avatar)</label>
+          <input id="e-avatar" type="file" accept="image/*" onchange="App.handleAvatar(event)" class="inp">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="lbl">Portfolyo Görselleri</label>
+          <input id="e-portfolio-images" type="file" accept="image/*" multiple onchange="App.handlePortfolio(event)" class="inp">
         </div>
         <button type="submit"
           class="sm:col-span-2 mt-2 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-opacity">Değişiklikleri
@@ -232,6 +259,7 @@
           area.innerHTML = `
             <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400">Merhaba, <strong class="text-gray-700 dark:text-gray-200">${esc(u.name || '')}</strong></span>
             <a href="my-listings.html" class="px-3 py-2 text-xs font-semibold rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors">İlanlarım</a>
+            <a href="messages.html" class="px-3 py-2 text-xs font-semibold rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors">Mesajlarım</a>
             <button onclick="Auth.logout()" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Çıkış</button>`;
         } else {
           area.innerHTML = `<a href="index.html?loginRequired=true" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Giriş Yap</a>`;
@@ -251,7 +279,16 @@
 
         document.getElementById('cover').style.cssText = `height:11rem; ${bannerStyle(p.color)}`;
         const av = document.getElementById('avatar');
-        av.style.backgroundColor = p.color; av.textContent = p.initial;
+        if (p.avatar) {
+          av.style.backgroundColor = '';
+          av.innerHTML = `<img src="${p.avatar}" class="w-full h-full rounded-full object-cover" alt="${esc(p.name)}">`;
+          av.classList.add('overflow-hidden');
+        } else {
+          av.style.backgroundColor = p.color;
+          av.textContent = p.initial;
+          av.innerHTML = p.initial;
+          av.classList.remove('overflow-hidden');
+        }
         document.getElementById('p-name').textContent = p.name;
         document.getElementById('p-title').textContent = p.title;
         document.getElementById('p-rating').textContent = '★ ' + p.ratingNum.toFixed(1);
@@ -264,13 +301,21 @@
           ? p.skills.map(s => `<span class="skill-chip px-3 py-1 rounded-full text-xs font-semibold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">${esc(s)}</span>`).join('')
           : '<span class="text-xs text-gray-400">Beceri eklenmemiş</span>';
 
-        document.getElementById('portfolio').innerHTML = (p.portfolio || []).length
-          ? p.portfolio.map(w => `<div class="bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-4 text-sm font-medium text-center">💼 ${esc(w)}</div>`).join('')
-          : '<p class="text-xs text-gray-400 col-span-2">Henüz iş eklenmemiş.</p>';
+        const portfolioHtml = (p.portfolioImages && p.portfolioImages.length)
+          ? p.portfolioImages.map((img, i) => `
+              <div class="relative overflow-hidden rounded-xl group border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40">
+                <img src="${img}" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" alt="Portfolio Image ${i+1}">
+              </div>
+            `).join('')
+          : (p.portfolio || []).length
+            ? p.portfolio.map(w => `<div class="bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-4 text-sm font-medium text-center">💼 ${esc(w)}</div>`).join('')
+            : '<p class="text-xs text-gray-400 col-span-2">Henüz iş eklenmemiş.</p>';
+        document.getElementById('portfolio').innerHTML = portfolioHtml;
 
         // Sahiplik Kontrolü & Butonlar
         const currentUser = Auth.user();
         const isOwner = currentUser && p.owner && String(p.owner) === String(currentUser.id);
+        const hasOwner = !!p.owner;
         const btnContainer = document.getElementById('action-buttons-container');
 
         if (isOwner) {
@@ -282,6 +327,15 @@
         } else {
           btnContainer.innerHTML = `
         <button onclick="App.contact()" class="w-full mt-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm font-semibold rounded-xl transition-opacity">İletişime Geç</button>`;
+        }
+
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+        if (toggleBtn) {
+          if (hasOwner && !isOwner) {
+            toggleBtn.style.display = 'flex';
+          } else {
+            toggleBtn.style.display = 'none';
+          }
         }
 
         this.renderReviews(reviews);
@@ -318,13 +372,42 @@
         } catch (err) { toast(err.message, 'err'); }
       },
 
+      avatarBase64: '',
+      portfolioImagesBase64: [],
+
+      handleAvatar(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          this.avatarBase64 = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      },
+
+      handlePortfolio(e) {
+        const files = Array.from(e.target.files);
+        this.portfolioImagesBase64 = [];
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            this.portfolioImagesBase64.push(evt.target.result);
+          };
+          reader.readAsDataURL(file);
+        });
+      },
+
       contact() {
-        const p = this.data.provider;
-        toast(`${p.phone || p.email || p.name} ile iletişime geçebilirsiniz`, 'info');
+        this.openChat();
       },
 
       openEditModal() {
         const p = this.data.provider;
+        this.avatarBase64 = p.avatar || '';
+        this.portfolioImagesBase64 = p.portfolioImages || [];
+        const fiAv = document.getElementById('e-avatar'); if (fiAv) fiAv.value = '';
+        const fiPf = document.getElementById('e-portfolio-images'); if (fiPf) fiPf.value = '';
+
         document.getElementById('e-name').value = p.name || '';
         document.getElementById('e-title').value = p.title || '';
         document.getElementById('e-category').value = p.category || 'yazilim';
@@ -353,6 +436,8 @@
           color: document.getElementById('e-color').value,
           skills: document.getElementById('e-skills').value,
           portfolio: document.getElementById('e-portfolio').value,
+          avatar: this.avatarBase64,
+          portfolioImages: this.portfolioImagesBase64,
         };
         try {
           await API.updateProvider(this.id, body);
@@ -361,6 +446,127 @@
           this.data = await API.provider(this.id);
           this.render();
         } catch (err) { toast(err.message, 'err'); }
+      },
+
+      // ── Sohbet Penceresi Mantığı ───────────────────────────────────────────
+      chatInterval: null,
+
+      openChat() {
+        if (!Auth.isLoggedIn()) {
+          toast('Sohbet edebilmek için giriş yapmalısınız.', 'info');
+          return;
+        }
+        const p = this.data.provider;
+        const chatBox = document.getElementById('floating-chat');
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+
+        document.getElementById('chat-title').textContent = p.name;
+        const chatAv = document.getElementById('chat-avatar');
+        if (p.avatar) {
+          chatAv.style.background = 'none';
+          chatAv.innerHTML = `<img src="${p.avatar}" class="w-full h-full object-cover rounded-full" alt="${esc(p.name)}">`;
+        } else {
+          chatAv.style.backgroundColor = p.color;
+          chatAv.textContent = p.initial;
+          chatAv.innerHTML = p.initial;
+        }
+
+        chatBox.classList.remove('hidden');
+        chatBox.classList.add('flex');
+        setTimeout(() => {
+          chatBox.classList.remove('opacity-0', 'translate-y-4', 'scale-95');
+          chatBox.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+        }, 10);
+        toggleBtn.classList.add('hidden');
+        toggleBtn.classList.remove('flex');
+
+        this.loadChatMessages();
+        this.startChatPolling();
+      },
+
+      closeChat() {
+        const chatBox = document.getElementById('floating-chat');
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+        chatBox.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+        chatBox.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+        setTimeout(() => {
+          chatBox.classList.add('hidden');
+          chatBox.classList.remove('flex');
+        }, 300);
+
+        const currentUser = Auth.user();
+        const p = this.data.provider;
+        const isOwner = currentUser && p.owner && String(p.owner) === String(currentUser.id);
+        if (!isOwner) {
+          toggleBtn.classList.remove('hidden');
+          toggleBtn.classList.add('flex');
+        }
+        this.stopChatPolling();
+      },
+
+      startChatPolling() {
+        this.stopChatPolling();
+        this.chatInterval = setInterval(() => this.loadChatMessages(), 3000);
+      },
+
+      stopChatPolling() {
+        if (this.chatInterval) {
+          clearInterval(this.chatInterval);
+          this.chatInterval = null;
+        }
+      },
+
+      async loadChatMessages() {
+        try {
+          const p = this.data.provider;
+          const currentUser = Auth.user();
+          if (!currentUser) return;
+          const messages = await API.getChatHistory(p._id, p.owner);
+          const bodyEl = document.getElementById('chat-body');
+          
+          const scrollAtBottom = bodyEl.scrollHeight - bodyEl.scrollTop <= bodyEl.clientHeight + 40;
+          
+          bodyEl.innerHTML = messages.map(m => {
+            const isMe = String(m.sender) === String(currentUser.id);
+            const bgClass = isMe ? 'bg-violet-600 text-white self-end ml-auto' : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 self-start mr-auto';
+            const senderName = isMe ? 'Siz' : (p.name || 'Uzman');
+            return `
+              <div class="flex flex-col max-w-[85%] ${isMe ? 'items-end ml-auto' : 'items-start mr-auto'}">
+                <div class="px-3 py-2 rounded-2xl ${bgClass}">
+                  ${esc(m.text)}
+                </div>
+                <span class="text-[8px] text-gray-400 mt-0.5 px-1">${senderName} · ${new Date(m.createdAt).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
+            `;
+          }).join('') || '<div class="text-center text-gray-400 py-8">Sohbeti başlatmak için ilk mesajı gönderin!</div>';
+          
+          if (scrollAtBottom || bodyEl.getAttribute('data-first-load') !== 'true') {
+            bodyEl.scrollTop = bodyEl.scrollHeight;
+            bodyEl.setAttribute('data-first-load', 'true');
+          }
+        } catch (err) {
+          console.error('Mesajlar yüklenemedi:', err);
+        }
+      },
+
+      async sendChatMessage(e) {
+        e.preventDefault();
+        const inputEl = document.getElementById('chat-input');
+        const text = inputEl.value.trim();
+        if (!text) return;
+        
+        const p = this.data.provider;
+        try {
+          await API.sendMessage({
+            providerId: p._id,
+            receiverId: p.owner,
+            text: text
+          });
+          inputEl.value = '';
+          await this.loadChatMessages();
+        } catch (err) {
+          toast('Mesaj gönderilemedi: ' + err.message, 'err');
+        }
       },
 
       async deleteListing() {
@@ -381,6 +587,7 @@
       m.addEventListener('click', e => { if (e.target === m) { m.classList.add('hidden'); m.classList.remove('flex'); } });
     });
 
+    window.addEventListener('beforeunload', () => App.stopChatPolling());
     App.init();
   </script>
 </body>

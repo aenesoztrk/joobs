@@ -240,6 +240,7 @@
           area.innerHTML = `
             <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400">Merhaba, <strong class="text-gray-700 dark:text-gray-200">${esc(u.name || '')}</strong></span>
             <a href="my-listings.html" class="px-3 py-2 text-xs font-semibold rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors">İlanlarım</a>
+            <a href="messages.html" class="px-3 py-2 text-xs font-semibold rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors">Mesajlarım</a>
             <button onclick="Auth.logout()" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Çıkış</button>`;
         } else {
           area.innerHTML = `<button onclick="App.openAuth()" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Giriş Yap</button>`;
@@ -327,6 +328,11 @@
         const fav = Favorites.has(p._id);
         const delay = Math.min(idx * 35, 320);
         const ratingPct = Math.round((p.ratingNum / 5) * 100);
+        const avatarHtml = p.avatar 
+          ? `<img src="${p.avatar}" class="w-full h-full rounded-full object-cover" alt="${esc(p.name)}">`
+          : esc(p.initial);
+        const avatarBg = p.avatar ? 'bg-white dark:bg-[#111119]' : '';
+        const avatarStyle = p.avatar ? '' : `background:${esc(p.color)}`;
         return `
     <div class="j-card fade-up bg-white dark:bg-[#111119] border border-gray-200/80 dark:border-gray-800/60 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-violet-950/20 flex flex-col"
          style="animation-delay:${delay}ms; opacity:0">
@@ -335,7 +341,7 @@
           class="fav-btn absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center text-lg backdrop-blur-sm bg-black/20 ${fav ? 'text-red-500' : 'text-white'} hover:scale-110 transition-transform">♥</button>
       </div>
       <div class="px-5 pb-5 flex flex-col flex-1 relative">
-        <div class="w-16 h-16 rounded-full border-4 border-white dark:border-[#111119] absolute -top-8 left-5 flex items-center justify-center text-white text-2xl font-bold" style="background:${esc(p.color)}">${esc(p.initial)}</div>
+        <div class="w-16 h-16 rounded-full border-4 border-white dark:border-[#111119] absolute -top-8 left-5 flex items-center justify-center text-white text-2xl font-bold overflow-hidden ${avatarBg}" style="${avatarStyle}">${avatarHtml}</div>
         <div class="mt-10">
           <h3 class="text-base font-bold leading-tight">${esc(p.name)}</h3>
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${esc(p.title)}</p>

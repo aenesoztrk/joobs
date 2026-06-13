@@ -17,6 +17,8 @@ const providerSchema = new mongoose.Schema(
     email:     { type: String, default: '', lowercase: true, trim: true },
     skills:    { type: [String], default: [] },
     portfolio: { type: [String], default: [] },
+    avatar:    { type: String, default: '' },
+    portfolioImages: { type: [String], default: [] },
 
     // Değerlendirme istatistikleri (yorumlar geldikçe güncellenir)
     ratingNum:   { type: Number, default: 5.0, min: 0, max: 5 },

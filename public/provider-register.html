@@ -85,6 +85,14 @@
               type="text" class="inp" placeholder="HTML, CSS, React"></div>
           <div class="sm:col-span-2"><label class="lbl">Örnek İşler (virgülle ayırın)</label><input id="f-portfolio"
               type="text" class="inp" placeholder="X Şirket Logosu, E-Ticaret Sitesi"></div>
+          <div class="sm:col-span-2">
+            <label class="lbl">Profil Resmi (Avatar)</label>
+            <input id="f-avatar" type="file" accept="image/*" onchange="App.handleAvatar(event)" class="inp">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="lbl">Portfolyo Görselleri</label>
+            <input id="f-portfolio-images" type="file" accept="image/*" multiple onchange="App.handlePortfolio(event)" class="inp">
+          </div>
 
           <button type="submit"
             class="sm:col-span-2 mt-2 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-opacity">İlanı
@@ -143,6 +151,9 @@
   <script src="app.js"></script>
   <script>
     const App = {
+      avatarBase64: '',
+      portfolioImagesBase64: [],
+
       init() {
         Theme.init();
         if (!Auth.isLoggedIn()) {
@@ -152,6 +163,33 @@
         this.preview();
       },
 
+      handleAvatar(e) {
+        const file = e.target.files[0];
+        if (!file) {
+          App.avatarBase64 = '';
+          App.preview();
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          App.avatarBase64 = evt.target.result;
+          App.preview();
+        };
+        reader.readAsDataURL(file);
+      },
+
+      handlePortfolio(e) {
+        const files = Array.from(e.target.files);
+        App.portfolioImagesBase64 = [];
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            App.portfolioImagesBase64.push(evt.target.result);
+          };
+          reader.readAsDataURL(file);
+        });
+      },
+
       preview() {
         const name = document.getElementById('f-name').value || 'Adınız Soyadınız';
         const title = document.getElementById('f-title').value || 'Profesyonel Unvanınız';
@@ -159,8 +197,17 @@
         const color = document.getElementById('f-color').value;
         document.getElementById('pv-name').textContent = name;
         document.getElementById('pv-title').textContent = title;
-        document.getElementById('pv-avatar').textContent = name.charAt(0).toUpperCase();
-        document.getElementById('pv-avatar').style.background = color;
+        const pvAvatar = document.getElementById('pv-avatar');
+        if (App.avatarBase64) {
+          pvAvatar.style.background = 'none';
+          pvAvatar.innerHTML = `<img src="${App.avatarBase64}" class="w-full h-full rounded-full object-cover" alt="Preview">`;
+          pvAvatar.classList.add('overflow-hidden');
+        } else {
+          pvAvatar.textContent = name.charAt(0).toUpperCase();
+          pvAvatar.style.background = color;
+          pvAvatar.classList.remove('overflow-hidden');
+          pvAvatar.innerHTML = name.charAt(0).toUpperCase();
+        }
         document.getElementById('pv-banner').style.background = `linear-gradient(135deg, ${color}, #1e1b2e)`;
         document.getElementById('pv-price').textContent = money(price);
       },
@@ -179,6 +226,8 @@
           email: document.getElementById('f-email').value,
           skills: document.getElementById('f-skills').value,
           portfolio: document.getElementById('f-portfolio').value,
+          avatar: App.avatarBase64,
+          portfolioImages: App.portfolioImagesBase64,
         };
         try {
           const { provider } = await API.createProvider(body);

@@ -126,6 +126,8 @@ router.post('/', protect, async (req, res) => {
       email: body.email || '',
       skills: toArray(body.skills),
       portfolio: toArray(body.portfolio),
+      avatar: body.avatar || '',
+      portfolioImages: toArray(body.portfolioImages),
       owner: req.user ? req.user._id : null,
     });
 
@@ -168,6 +170,8 @@ router.put('/:id', protect, async (req, res) => {
     provider.email = body.email || '';
     provider.skills = toArray(body.skills);
     provider.portfolio = toArray(body.portfolio);
+    provider.avatar = body.avatar || '';
+    provider.portfolioImages = toArray(body.portfolioImages);
 
     await provider.save();
     res.json({ provider });
