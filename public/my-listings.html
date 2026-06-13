@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joobs — İlanlarım</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-gray-50 dark:bg-[#08080e] text-gray-900 dark:text-gray-100 min-h-screen">
+
+  <!-- NAVBAR -->
+  <header class="glass sticky top-0 z-50 border-b border-gray-200/80 dark:border-gray-800/80">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 flex-shrink-0">
+        <div class="w-7 h-7 bg-gradient-to-br from-violet-600 to-purple-700 rounded-lg flex items-center justify-center shadow-md shadow-violet-900/20">
+          <span class="text-white text-xs font-black">J</span>
+        </div>
+        <span class="font-bold text-sm brand-text">Joobs</span>
+      </a>
+      <div class="flex-1"></div>
+      <button onclick="Theme.toggle()"
+        class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">
+        <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 2v2m0 16v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m16 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+        <svg id="icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+      <div id="auth-area" class="flex items-center gap-2"></div>
+      <a href="index.html" class="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-violet-500 transition-colors">← Ana Sayfa</a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-black brand-text">İlanlarım</h1>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Açmış olduğunuz hizmet veren ilanlarını buradan yönetebilirsiniz.</p>
+      </div>
+      <a href="provider-register.html" class="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-xs font-bold rounded-xl transition-opacity shadow-md shadow-violet-900/20">
+        Yeni İlan Ekle 🚀
+      </a>
+    </div>
+
+    <!-- LOADING -->
+    <div id="state-loading" class="flex flex-col items-center justify-center h-64 gap-3">
+      <div class="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full spin"></div>
+      <span class="text-sm text-gray-400">İlanlarınız yükleniyor…</span>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="state-empty" style="display:none" class="flex flex-col items-center justify-center h-64 text-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-900/50 flex items-center justify-center text-3xl">📋</div>
+      <div>
+        <h3 class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Henüz bir ilanınız bulunmuyor</h3>
+        <p class="text-sm text-gray-400">Platformda hizmet vermek için ilk ilanınızı oluşturun.</p>
+      </div>
+      <a href="provider-register.html" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-xl transition-colors">İlk İlanımı Oluştur 🚀</a>
+    </div>
+
+    <!-- LIST GRID -->
+    <div id="grid" style="display:none" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-200/60 dark:border-gray-800/60 py-8 text-center text-xs text-gray-400 dark:text-gray-600">
+    © 2026 Joobs Marketplace — Node.js · Express · MongoDB
+  </footer>
+
+  <!-- EDIT MODAL -->
+  <div id="editModal" class="modal-backdrop fixed inset-0 z-[1000] hidden items-center justify-center p-4">
+    <div class="modal-pop bg-white dark:bg-[#12121c] w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="App.closeModal('editModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl">&times;</button>
+      <h3 class="text-lg font-bold mb-1">İlanı Düzenle</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">İlan bilgilerinizi güncelleyin.</p>
+      <form id="editForm" onsubmit="App.submitEdit(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+        <div>
+          <label class="lbl">Ad Soyad</label>
+          <input id="e-name" type="text" required class="inp">
+        </div>
+        <div>
+          <label class="lbl">Kategori</label>
+          <select id="e-category" class="inp">
+            <option value="yazilim">💻 Yazılım & BT</option>
+            <option value="tasarim">🎨 Tasarım & Grafik</option>
+            <option value="temizlik">🧹 Ev Temizliği</option>
+            <option value="tamirat">🔧 Tamirat & Tadilat</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="lbl">Profesyonel Unvan</label>
+          <input id="e-title" type="text" required class="inp" placeholder="Örn: Full-Stack Web Geliştirici">
+        </div>
+        <div>
+          <label class="lbl">Başlangıç Fiyatı (TL)</label>
+          <input id="e-price" type="number" min="0" required class="inp">
+        </div>
+        <div>
+          <label class="lbl">Şehir</label>
+          <input id="e-location" type="text" required class="inp">
+        </div>
+        <div>
+          <label class="lbl">Çalışma Saatleri</label>
+          <input id="e-hours" type="text" required class="inp">
+        </div>
+        <div>
+          <label class="lbl">Telefon</label>
+          <input id="e-phone" type="text" required class="inp">
+        </div>
+        <div>
+          <label class="lbl">E-posta</label>
+          <input id="e-email" type="email" required class="inp">
+        </div>
+        <div>
+          <label class="lbl">Tema Rengi</label>
+          <select id="e-color" class="inp">
+            <option value="#7c3aed">Mor (Joobs)</option>
+            <option value="#4f46e5">İndigo Mavi</option>
+            <option value="#10b981">Zümrüt Yeşil</option>
+            <option value="#ec4899">Pembe</option>
+            <option value="#f59e0b">Kehribar</option>
+            <option value="#06b6d4">Camgöbeği</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="lbl">Beceriler (virgülle ayırın)</label>
+          <input id="e-skills" type="text" class="inp" placeholder="HTML, CSS, React">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="lbl">Örnek İşler (virgülle ayırın)</label>
+          <input id="e-portfolio" type="text" class="inp" placeholder="X Şirket Logosu, E-Ticaret Sitesi">
+        </div>
+        <button type="submit" class="sm:col-span-2 mt-2 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-opacity">Değişiklikleri Kaydet</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const App = {
+      providers: [],
+      activeId: null,
+
+      async init() {
+        Theme.init();
+        if (!Auth.isLoggedIn()) {
+          location.href = 'index.html?loginRequired=true';
+          return;
+        }
+        this.renderAuth();
+        await this.load();
+      },
+
+      renderAuth() {
+        const area = document.getElementById('auth-area');
+        const u = Auth.user() || {};
+        area.innerHTML = `
+          <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400">Merhaba, <strong class="text-gray-700 dark:text-gray-200">${esc(u.name || '')}</strong></span>
+          <button onclick="Auth.logout()" class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors">Çıkış</button>`;
+      },
+
+      async load() {
+        try {
+          const res = await API.myListings();
+          this.providers = res.providers || [];
+          document.getElementById('state-loading').style.display = 'none';
+
+          if (!this.providers.length) {
+            document.getElementById('state-empty').style.display = 'flex';
+            document.getElementById('grid').style.display = 'none';
+            return;
+          }
+
+          document.getElementById('state-empty').style.display = 'none';
+          const grid = document.getElementById('grid');
+          grid.style.display = 'grid';
+          grid.innerHTML = this.providers.map((p, idx) => this.card(p, idx)).join('');
+        } catch (err) {
+          document.getElementById('state-loading').style.display = 'none';
+          toast('İlanlar yüklenirken hata oluştu: ' + err.message, 'err');
+        }
+      },
+
+      card(p, idx) {
+        const delay = Math.min(idx * 35, 320);
+        const ratingPct = Math.round((p.ratingNum / 5) * 100);
+        return `
+        <div class="j-card fade-up bg-white dark:bg-[#111119] border border-gray-200/80 dark:border-gray-800/60 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-violet-950/20 flex flex-col"
+             style="animation-delay:${delay}ms; opacity:0">
+          <div class="h-24 relative" style="${bannerStyle(p.color)}"></div>
+          <div class="px-5 pb-5 flex flex-col flex-1 relative">
+            <div class="w-16 h-16 rounded-full border-4 border-white dark:border-[#111119] absolute -top-8 left-5 flex items-center justify-center text-white text-2xl font-bold" style="background:${esc(p.color)}">${esc(p.initial)}</div>
+            <div class="mt-10">
+              <h3 class="text-base font-bold leading-tight">${esc(p.name)}</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${esc(p.title)}</p>
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-amber-500 text-sm font-bold">★ ${p.ratingNum.toFixed(1)}</span>
+                <span class="text-xs text-gray-400">(${p.reviewCount} yorum)</span>
+              </div>
+              <div class="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-3">
+                <div class="h-1 score-fill bg-amber-400" style="width:${ratingPct}%"></div>
+              </div>
+              ${(p.skills || []).slice(0, 3).map(s => `<span class="skill-chip inline-block mr-1 mb-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400">${esc(s)}</span>`).join('')}
+            </div>
+            <div class="flex-1"></div>
+            <div class="grid grid-cols-2 gap-2 pt-4 mt-3 border-t border-gray-100 dark:border-gray-800/60">
+              <button onclick="App.openEditModal('${p._id}')" class="py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition-colors">Düzenle</button>
+              <button onclick="App.deleteListing('${p._id}')" class="py-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-xs font-semibold rounded-lg transition-colors">Sil</button>
+            </div>
+          </div>
+        </div>`;
+      },
+
+      openEditModal(id) {
+        this.activeId = id;
+        const p = this.providers.find(x => x._id === id);
+        if (!p) return;
+
+        document.getElementById('e-name').value = p.name || '';
+        document.getElementById('e-title').value = p.title || '';
+        document.getElementById('e-category').value = p.category || 'yazilim';
+        document.getElementById('e-price').value = p.priceNum || 0;
+        document.getElementById('e-location').value = p.location || '';
+        document.getElementById('e-hours').value = p.hours || '09:00 - 18:00';
+        document.getElementById('e-phone').value = p.phone || '';
+        document.getElementById('e-email').value = p.email || '';
+        document.getElementById('e-color').value = p.color || '#7c3aed';
+        document.getElementById('e-skills').value = (p.skills || []).join(', ');
+        document.getElementById('e-portfolio').value = (p.portfolio || []).join(', ');
+        this.openModal('editModal');
+      },
+
+      async submitEdit(e) {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById('e-name').value,
+          title: document.getElementById('e-title').value,
+          category: document.getElementById('e-category').value,
+          priceNum: Number(document.getElementById('e-price').value),
+          location: document.getElementById('e-location').value,
+          hours: document.getElementById('e-hours').value,
+          phone: document.getElementById('e-phone').value,
+          email: document.getElementById('e-email').value,
+          color: document.getElementById('e-color').value,
+          skills: document.getElementById('e-skills').value,
+          portfolio: document.getElementById('e-portfolio').value,
+        };
+        try {
+          await API.updateProvider(this.activeId, body);
+          this.closeModal('editModal');
+          toast('İlan başarıyla güncellendi!');
+          await this.load();
+        } catch (err) { toast(err.message, 'err'); }
+      },
+
+      async deleteListing(id) {
+        if (!confirm('Bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) return;
+        try {
+          await API.deleteProvider(id);
+          toast('İlan başarıyla silindi!');
+          await this.load();
+        } catch (err) { toast(err.message, 'err'); }
+      },
+
+      openModal(id) { const m = document.getElementById(id); m.classList.remove('hidden'); m.classList.add('flex'); },
+      closeModal(id) { const m = document.getElementById(id); m.classList.add('hidden'); m.classList.remove('flex'); },
+    };
+
+    // Modal dışına tıklayınca kapat
+    document.querySelectorAll('.modal-backdrop').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) { m.classList.add('hidden'); m.classList.remove('flex'); } });
+    });
+
+    App.init();
+  </script>
+</body>
+
+</html>

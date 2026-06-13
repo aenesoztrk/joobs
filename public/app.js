@@ -26,7 +26,7 @@ const Theme = {
 // ─── Kimlik (JWT) ───────────────────────────────────────────────────────────
 const Auth = {
   token() { return localStorage.getItem('joobs_token'); },
-  user()  { try { return JSON.parse(localStorage.getItem('joobs_user')); } catch { return null; } },
+  user() { try { return JSON.parse(localStorage.getItem('joobs_user')); } catch { return null; } },
   isLoggedIn() { return !!Auth.token(); },
   set(token, user) {
     localStorage.setItem('joobs_token', token);
@@ -55,22 +55,25 @@ const API = {
     if (!res.ok) throw new Error(data.error || `Hata (${res.status})`);
     return data;
   },
-  get(u)        { return API.req('GET', u); },
-  post(u, b)    { return API.req('POST', u, b); },
+  get(u) { return API.req('GET', u); },
+  post(u, b) { return API.req('POST', u, b); },
 
   // Domain yardımcıları
   providers(params = {}) {
     const q = new URLSearchParams(params).toString();
     return API.get('/api/providers' + (q ? '?' + q : ''));
   },
-  provider(id)       { return API.get('/api/providers/' + id); },
-  categories()       { return API.get('/api/providers/categories'); },
-  stats()            { return API.get('/api/providers/stats'); },
-  createProvider(b)  { return API.post('/api/providers', b); },
-  reviews(id)        { return API.get(`/api/providers/${id}/reviews`); },
-  addReview(id, b)   { return API.post(`/api/providers/${id}/reviews`, b); },
-  register(b)        { return API.post('/api/auth/register', b); },
-  login(b)           { return API.post('/api/auth/login', b); },
+  provider(id) { return API.get('/api/providers/' + id); },
+  categories() { return API.get('/api/providers/categories'); },
+  stats() { return API.get('/api/providers/stats'); },
+  createProvider(b) { return API.post('/api/providers', b); },
+  myListings() { return API.get('/api/providers/my-listings'); },
+  updateProvider(id, b) { return API.req('PUT', '/api/providers/' + id, b); },
+  deleteProvider(id) { return API.req('DELETE', '/api/providers/' + id); },
+  reviews(id) { return API.get(`/api/providers/${id}/reviews`); },
+  addReview(id, b) { return API.post(`/api/providers/${id}/reviews`, b); },
+  register(b) { return API.post('/api/auth/register', b); },
+  login(b) { return API.post('/api/auth/login', b); },
   toggleFavorite(id) { return API.post('/api/auth/favorites/' + id); },
   syncFavorites(arr) { return API.post('/api/auth/favorites/sync', { favorites: arr }); },
 };
@@ -87,7 +90,7 @@ const Favorites = {
     const idx = arr.indexOf(id);
     if (idx > -1) arr.splice(idx, 1); else arr.push(id);
     Favorites.saveLocal(arr);
-    if (Auth.isLoggedIn()) { try { await API.toggleFavorite(id); } catch (_) {} }
+    if (Auth.isLoggedIn()) { try { await API.toggleFavorite(id); } catch (_) { } }
     return arr;
   },
 
@@ -97,7 +100,7 @@ const Favorites = {
     try {
       const { favorites } = await API.syncFavorites(Favorites.local());
       Favorites.saveLocal((favorites || []).map(String));
-    } catch (_) {}
+    } catch (_) { }
   },
 };
 
@@ -109,8 +112,8 @@ const money = n => (Number(n) || 0).toLocaleString('tr-TR') + ' TL';
 
 function toast(msg, kind = 'ok') {
   const colors = {
-    ok:   'from-violet-600 to-purple-600',
-    err:  'from-red-600 to-rose-600',
+    ok: 'from-violet-600 to-purple-600',
+    err: 'from-red-600 to-rose-600',
     info: 'from-sky-600 to-cyan-600',
   };
   const el = document.createElement('div');

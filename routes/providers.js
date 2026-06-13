@@ -1,18 +1,18 @@
 'use strict';
 
-const express  = require('express');
+const express = require('express');
 const Provider = require('../models/Provider');
-const Review   = require('../models/Review');
+const Review = require('../models/Review');
 const { optionalAuth, protect } = require('../middleware/auth');
 
 const router = express.Router();
 
 const CATEGORY_META = [
-  { key: 'all',      icon: '🌐', label: 'Tümü' },
-  { key: 'yazilim',  icon: '💻', label: 'Yazılım' },
-  { key: 'tasarim',  icon: '🎨', label: 'Tasarım' },
+  { key: 'all', icon: '🌐', label: 'Tümü' },
+  { key: 'yazilim', icon: '💻', label: 'Yazılım' },
+  { key: 'tasarim', icon: '🎨', label: 'Tasarım' },
   { key: 'temizlik', icon: '🧹', label: 'Temizlik' },
-  { key: 'tamirat',  icon: '🔧', label: 'Tamirat' },
+  { key: 'tamirat', icon: '🔧', label: 'Tamirat' },
 ];
 
 // ── GET /api/providers  (filtre + arama + sıralama) ───────────────────────
@@ -28,10 +28,10 @@ router.get('/', async (req, res) => {
     }
 
     const sortMap = {
-      'price-asc':  { priceNum: 1 },
+      'price-asc': { priceNum: 1 },
       'price-desc': { priceNum: -1 },
-      'rate-desc':  { ratingNum: -1, reviewCount: -1 },
-      'default':    { featured: -1, createdAt: -1 },
+      'rate-desc': { ratingNum: -1, reviewCount: -1 },
+      'default': { featured: -1, createdAt: -1 },
     };
 
     const providers = await Provider.find(query).sort(sortMap[sort] || sortMap.default);
@@ -78,6 +78,16 @@ router.get('/stats', async (_req, res) => {
   }
 });
 
+// ── GET /api/providers/my-listings  (giriş yapan kullanıcının ilanları) ────
+router.get('/my-listings', protect, async (req, res) => {
+  try {
+    const providers = await Provider.find({ owner: req.user._id }).sort({ createdAt: -1 });
+    res.json({ providers });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/providers/:id ────────────────────────────────────────────────
 router.get('/:id', async (req, res) => {
   try {
@@ -91,7 +101,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ── POST /api/providers  (yeni ilan oluştur) ──────────────────────────────
-router.post('/', optionalAuth, async (req, res) => {
+router.post('/', protect, async (req, res) => {
   try {
     const body = req.body || {};
     const required = ['name', 'title', 'category', 'priceNum'];
@@ -102,21 +112,21 @@ router.post('/', optionalAuth, async (req, res) => {
     const toArray = v =>
       Array.isArray(v) ? v
         : typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean)
-        : [];
+          : [];
 
     const provider = await Provider.create({
-      name:      body.name,
-      title:     body.title,
-      category:  body.category,
-      priceNum:  Number(body.priceNum) || 0,
-      color:     body.color || '#7c3aed',
-      location:  body.location || '',
-      hours:     body.hours || '09:00 - 18:00',
-      phone:     body.phone || '',
-      email:     body.email || '',
-      skills:    toArray(body.skills),
+      name: body.name,
+      title: body.title,
+      category: body.category,
+      priceNum: Number(body.priceNum) || 0,
+      color: body.color || '#7c3aed',
+      location: body.location || '',
+      hours: body.hours || '09:00 - 18:00',
+      phone: body.phone || '',
+      email: body.email || '',
+      skills: toArray(body.skills),
       portfolio: toArray(body.portfolio),
-      owner:     req.user ? req.user._id : null,
+      owner: req.user ? req.user._id : null,
     });
 
     res.status(201).json({ provider });
@@ -125,4 +135,69 @@ router.post('/', optionalAuth, async (req, res) => {
   }
 });
 
+// ── PUT /api/providers/:id  (ilan güncelle) ────────────────────────────────
+router.put('/:id', protect, async (req, res) => {
+  try {
+    const provider = await Provider.findById(req.params.id);
+    if (!provider) return res.status(404).json({ error: 'Uzman bulunamadı' });
+
+    // Sahiplik kontrolü (eğer owner tanımlıysa ve istek atan kullanıcı sahibi değilse)
+    if (provider.owner && provider.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Bu işlem için yetkiniz yok' });
+    }
+
+    const body = req.body || {};
+    const required = ['name', 'title', 'category', 'priceNum'];
+    for (const f of required)
+      if (body[f] === undefined || body[f] === '' || body[f] === null)
+        return res.status(400).json({ error: `Eksik alan: ${f}` });
+
+    const toArray = v =>
+      Array.isArray(v) ? v
+        : typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+
+    provider.name = body.name;
+    provider.title = body.title;
+    provider.category = body.category;
+    provider.priceNum = Number(body.priceNum) || 0;
+    provider.color = body.color || '#7c3aed';
+    provider.location = body.location || '';
+    provider.hours = body.hours || '09:00 - 18:00';
+    provider.phone = body.phone || '';
+    provider.email = body.email || '';
+    provider.skills = toArray(body.skills);
+    provider.portfolio = toArray(body.portfolio);
+
+    await provider.save();
+    res.json({ provider });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/providers/:id  (ilan sil) ──────────────────────────────────
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    const provider = await Provider.findById(req.params.id);
+    if (!provider) return res.status(404).json({ error: 'Uzman bulunamadı' });
+
+    // Sahiplik kontrolü
+    if (provider.owner && provider.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Bu işlem için yetkiniz yok' });
+    }
+
+    // İlişkili tüm yorumları sil (cascade delete)
+    await Review.deleteMany({ provider: provider._id });
+
+    // İlanı sil
+    await Provider.findByIdAndDelete(provider._id);
+
+    res.json({ ok: true, message: 'İlan başarıyla silindi' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 module.exports = router;
+
